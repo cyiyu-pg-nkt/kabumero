@@ -1,11 +1,41 @@
+# server.py
+# Requirements:
+#   pip install flask yfinance flask-cors
+
+from flask import Flask, jsonify
+from flask_cors import CORS
+import yfinance as yf
+import datetime
+
+app = Flask(__name__)
+CORS(app)  # allow requests from your local HTML or GitHub Pages
+
+@app.route("/stock/<symbol>")
+def stock(symbol):
+    # Get past 6 hours of 1-minute data
+    end = datetime.datetime.now()
+    start = end - datetime.timedelta(hours=6)
+    ticker = yf.Ticker(symbol)
+
+    # Try to fetch; if empty, return an error
+    data = ticker.history(interval="1m", start=start, end=end)
+    if data is None or len(data) == 0:
+        return jsonify({"error": "no data"}), 404
+
+    # Return close prices as a simple list
+    prices = data["Close"].tolist()
+    return jsonify(prices)
+
+if __name__ == "__main__":
+    # Run local server
+    app.run(host="0.0.0.0", port=5000)
 <!doctype html>
 <html lang="ja">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>株メロ♪ | カプセルトイで短い曲</title>
+  <title>株メロ♪ | 6時間の株価で短い曲</title>
   <style>
-    /* ===== 80年代レトロかわいいデザイン ===== */
     :root {
       --bg: #21213a;
       --panel: #2c2c4f;
@@ -19,133 +49,208 @@
       --ring-grad: conic-gradient(from 0deg, #ff72b6, #6df0ff, #96ff7c, #ffe66d, #ff72b6);
     }
     * { box-sizing: border-box; }
-    html, body { margin: 0; height: 100%; background: radial-gradient(1200px 600px at 20% 10%, rgba(255,114,182,0.25), transparent 60%), radial-gradient(1200px 600px at 80% 90%, rgba(109,240,255,0.18), transparent 60%), var(--bg); color: var(--white); font-family: "Segoe UI","Yu Gothic UI",system-ui; }
-    .container { max-width: 980px; margin: 0 auto; padding: 24px; }
-    header { text-align: center; margin-bottom: 16px; }
-    .title { font-weight: 900; font-size: 40px; letter-spacing: 2px; display: inline-block; padding: 10px 18px; background: var(--btn-grad); color: #1c1230; border-radius: 16px; box-shadow: 0 8px 20px var(--shadow), inset 0 -3px 0 rgba(0,0,0,0.15); text-shadow: 0 1px 0 rgba(255,255,255,0.6); }
-    .catch { margin-top: 10px; font-size: 16px; color: var(--accent-yellow); text-shadow: 0 1px 0 rgba(0,0,0,0.4); }
-    .sub { margin-top: 6px; font-size: 14px; color: #e9d8ff; opacity: 0.9; }
-    .stage { display: grid; grid-template-columns: 1.2fr 0.8fr; gap: 24px; align-items: start; margin-top: 18px; }
-    .machine { background: var(--panel); border-radius: 18px; padding: 20px; box-shadow: 0 10px 30px var(--shadow); position: relative; overflow: hidden; }
-    .ring { width: 220px; height: 220px; margin: 0 auto; border-radius: 50%; background: var(--ring-grad); filter: saturate(1.3); box-shadow: 0 6px 18px var(--shadow), inset 0 0 24px rgba(255,255,255,0.25); position: relative; animation: spin 8s linear infinite; }
-    @keyframes spin { to { transform: rotate(360deg); } }
-    .capsule { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 160px; height: 160px; border-radius: 50%; background: radial-gradient(closest-side, rgba(255,255,255,0.7), rgba(255,255,255,0.05)), linear-gradient(180deg, rgba(255,114,182,0.5), rgba(255,114,182,0.05)), linear-gradient(45deg, rgba(109,240,255,0.8), rgba(109,240,255,0.15)); box-shadow: 0 4px 12px var(--shadow), inset 0 2px 12px rgba(255,255,255,0.25); }
-    .handle { margin-top: 18px; display: flex; justify-content: center; }
-    .btn { appearance: none; border: none; padding: 12px 20px; font-weight: 900; font-size: 16px; color: #1c1230; background: var(--btn-grad); border-radius: 14px; box-shadow: 0 6px 16px var(--shadow), inset 0 -3px 0 rgba(0,0,0,0.15); cursor: pointer; transition: transform 0.05s ease, box-shadow 0.2s ease; }
-    .btn:hover { transform: translateY(-1px); }
-    .btn:active { transform: translateY(1px); box-shadow: 0 4px 12px var(--shadow), inset 0 -1px 0 rgba(0,0,0,0.25); }
-    .info { background: var(--panel); border-radius: 18px; padding: 18px; box-shadow: 0 10px 30px var(--shadow); }
-    .info h3 { margin: 0 0 8px; font-size: 18px; color: var(--accent-cyan); text-shadow: 0 1px 0 rgba(0,0,0,0.4); }
-    .info p { margin: 8px 0; font-size: 14px; line-height: 1.6; opacity: 0.9; }
-    .muted { opacity: 0.85; font-size: 13px; color: #d6c9ff; }
-    .results { margin-top: 22px; display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
-    .card { background: #353565; border: 1px solid rgba(255,255,255,0.08); border-radius: 14px; padding: 12px; box-shadow: 0 6px 18px var(--shadow); }
-    .card h4 { margin: 0 0 6px; font-size: 16px; color: var(--accent-yellow); }
-    .meta { font-size: 13px; color: #e2e0ff; margin-top: 6px; }
-    .badge { display: inline-block; padding: 4px 8px; font-size: 12px; font-weight: 800; color: #1c1230; background: var(--accent-green); border-radius: 10px; margin-right: 6px; }
-    .timeSig { display: inline-block; padding: 4px 8px; font-size: 12px; font-weight: 800; color: #1c1230; background: var(--accent-cyan); border-radius: 10px; }
-    footer { text-align: center; margin: 28px 0 8px; font-size: 12px; color: #bfb8ff; opacity: 0.8; }
-    @media (max-width: 800px) { .stage { grid-template-columns: 1fr; } .results { grid-template-columns: 1fr; } .ring { width: 180px; height: 180px; } .capsule { width: 130px; height: 130px; } }
+    body { margin:0; background:var(--bg); color:var(--white); font-family:"Segoe UI","Yu Gothic UI",system-ui; }
+    .container { max-width:960px; margin:auto; padding:20px; }
+    header { text-align:center; }
+    .title { font-size:40px; font-weight:bold; background:var(--btn-grad); color:#1c1230; padding:10px 20px; border-radius:16px; display:inline-block; }
+    .catch { color:var(--accent-yellow); margin-top:8px; }
+    .sub { font-size:14px; margin-top:6px; color:#e9d8ff; }
+    .stage { display:flex; gap:20px; margin-top:20px; flex-wrap:wrap; }
+    .machine,.info { flex:1; min-width:280px; background:var(--panel); border-radius:16px; padding:20px; box-shadow:0 8px 20px var(--shadow); }
+    .ring { width:200px; height:200px; margin:auto; border-radius:50%; background:var(--ring-grad); animation:spin 8s linear infinite; position:relative; }
+    .capsule { width:140px; height:140px; border-radius:50%; background:radial-gradient(closest-side,rgba(255,255,255,0.7),rgba(255,255,255,0.05)); position:absolute; top:50%; left:50%; transform:translate(-50%,-50%); }
+    @keyframes spin { to { transform:rotate(360deg); } }
+    .btn { margin-top:20px; padding:12px 20px; border:none; border-radius:14px; background:var(--btn-grad); font-weight:bold; cursor:pointer; color:#1c1230; }
+    .results { margin-top:20px; display:flex; gap:16px; flex-wrap:wrap; }
+    .card { flex:1; min-width:280px; background:#353565; border-radius:14px; padding:12px; }
+    .card h4 { margin:0 0 6px; color:var(--accent-yellow); }
+    .badge { background:var(--accent-green); padding:4px 8px; border-radius:8px; color:#102010; display:inline-block; }
+    .timeSig { background:var(--accent-cyan); padding:4px 8px; border-radius:8px; color:#0b1c22; display:inline-block; margin-left:8px; }
+    .label { color:#cfd3ff; font-size:12px; margin-top:8px; display:block; }
+    .row { display:flex; gap:8px; flex-wrap:wrap; align-items:center; margin-top:8px; }
+    .input { padding:8px; border-radius:10px; border:1px solid #6666aa; background:#2a2a4a; color:#fff; }
   </style>
 </head>
 <body>
-<div class="container">
-  <header>
-    <div class="title">株メロ♪</div>
-    <div class="catch">株価の値動きで意外な音楽ができちゃう！</div>
-    <div class="sub">カプセルトイを回すだけで、値動きデータに基づいた短い曲が自動生成されます。どんな曲が出るか、楽しんで体験しよう！</div>
-  </header>
+  <div class="container">
+    <header>
+      <div class="title">株メロ♪</div>
+      <div class="catch">株価の値動きで意外な音楽ができちゃう！</div>
+      <div class="sub">過去6時間の株価（1分足）を取り込み、短いフレーズを自動生成します。</div>
+    </header>
 
-  <div class="stage">
-    <section class="machine" aria-label="カプセルトイ">
-      <div class="ring" aria-hidden="true">
-        <div class="capsule" aria-hidden="true"></div>
-      </div>
-      <div class="handle">
+    <div class="stage">
+      <section class="machine">
+        <div class="ring"><div class="capsule"></div></div>
+        <div class="row">
+          <label class="label">銘柄コード（Yahoo形式）例: 7203.T, 6758.T</label>
+          <input id="symbolInput" class="input" value="7203.T" />
+        </div>
         <button id="rollBtn" class="btn">カプセルトイを回す</button>
-      </div>
-      <p class="muted" style="text-align:center;margin-top:10px;">クリック／タップで約10秒の短い曲を再生</p>
-    </section>
+      </section>
+      <aside class="info">
+        <p>ボタンをタップすると、APIから株価を取得して約10秒程度のフレーズを生成します。</p>
+        <p>スマホ対応: 初回タップ時に音声エンジンが有効化されます（自動再生制限回避）。</p>
+      </aside>
+    </div>
 
-    <aside class="info">
-      <h3>基本コンセプト</h3>
-      <p>ユーザーは銘柄を入力せず、カプセルトイを回すだけで完全ランダム抽選。曲は株価起源のイメージに基づいて生成され、短くて意外性のある体験を提供します。</p>
-      <h3>曲生成のルール</h3>
-      <p>上昇／下降は音階、値幅は音量、ボラティリティはリズムやランダム性に反映。拍子はランダム抽選し、曲全体は一つの拍子で統一します（4/4・3/4・6/8・5/4）。</p>
-      <p class="muted">禁止事項：架空企業・仮想銘柄の使用禁止／投資助言・株価情報は表示しません。</p>
-    </aside>
+    <section class="results" id="results"></section>
   </div>
 
-  <section class="results" id="results" aria-live="polite"></section>
-  <footer>© 株メロ♪ カラフルPOPのレトロかわいい体験</footer>
-</div>
+  <script>
+    // ===== Audio initialization (mobile-safe) =====
+    const AudioCtx = window.AudioContext || window.webkitAudioContext;
+    let audioCtx = null;
+    function ensureAudio() {
+      if (!audioCtx) audioCtx = new AudioCtx({ latencyHint: "interactive" });
+      if (audioCtx.state === "suspended") {
+        audioCtx.resume().catch(() => {});
+      }
+    }
 
-<script>
-  // ===== AudioContext 両対応初期化 =====
-  const AudioCtx = window.AudioContext || window.webkitAudioContext;
-  let audioCtx = null;
-  function ensureAudio() {
-    if (!audioCtx) audioCtx = new AudioCtx();
-    if (audioCtx.state === "suspended") audioCtx.resume();
-  }
-  // モバイル初回タッチでも起動
-  document.body.addEventListener("touchstart", ensureAudio, { once: true });
+    // ===== Fetch 6-hour minute data from local server =====
+    async function fetchStock(symbol) {
+      const url = `http://localhost:5000/stock/${encodeURIComponent(symbol)}`;
+      const res = await fetch(url, { cache: "no-store" });
+      if (!res.ok) throw new Error(`fetch error: ${res.status}`);
+      const json = await res.json();
+      if (!Array.isArray(json) || json.length < 10) throw new Error("no/short data");
+      return json;
+    }
 
-  // ===== TOPIX100リスト =====
-  const TOPIX100 = [ "1925大和ハウス工業","1928積水ハウス","2413エムスリー","2502アサヒグループホールディングス","2503キリンホールディングス","2802味の素","2914日本たばこ産業","3382セブン＆アイ・ホールディングス","3402東レ","3407旭化成","4063信越化学工業","4188三菱ケミカルホールディングス","4452花王","4502武田薬品工業","4503アステラス製薬","4507塩野義製薬","4519中外製薬","4523エーザイ","4528小野薬品工業","4543テルモ","4568第一三共","4578大塚ホールディングス","4661オリエンタルランド","4689Ｚホールディングス","4901富士フイルムホールディングス","4911資生堂","5020ＥＮＥＯＳホールディングス","5108ブリヂストン","5401日本製鉄","5713住友金属鉱山","5802住友電気工業","6098リクルートホールディングス","6178日本郵政","6273ＳＭＣ","6301小松製作所","6326クボタ","6367ダイキン工業","6501日立製作所","6502東芝","6503三菱電機","6594日本電産","6645オムロン","6702富士通","6723ルネサスエレクトロニクス","6752パナソニック","6758ソニー","6861キーエンス","6869シスメックス","6902デンソー","6920レーザーテック","6954ファナック","6971京セラ","6981村田製作所","7011三菱重工業","7201日産自動車","7203トヨタ自動車","7267本田技研工業","7269スズキ","7270ＳＵＢＡＲＵ","7309シマノ","7733オリンパス","7741ＨＯＹＡ","7751キヤノン","7832バンダイナムコホールディングス","7974任天堂","8001伊藤忠商事","8002丸紅","8031三井物産","8035東京エレクトロン","8053住友商事","8058三菱商事","8113ユニ・チャーム","8267イオン","8306三菱ＵＦＪフィナンシャル・グループ","8308りそなホールディングス","8309三井住友トラスト・ホールディングス","8316三井住友フィナンシャルグループ","8411みずほフィナンシャルグループ","8591オリックス","8604野村ホールディングス","8630ＳＯＭＰＯホールディングス","8697日本取引所グループ","8725ＭＳ＆ＡＤインシュアランスグループホルディングス","8750第一生命ホールディングス","8766東京海上ホールディングス","8801三井不動産","8802三菱地所","8830住友不動産","9020東日本旅客鉄道","9021西日本旅客鉄道","9022東海旅客鉄道","9101日本郵船","9202ＡＮＡホールディングス","9432日本電信電話","9433ＫＤＤＩ","9434ソフトバンク","9735セコム","9843ニトリホールディングス","9983ファーストリテイリング","9984ソフトバンクグループ"];
+    // ===== Analyze price series to derive musical parameters =====
+    function analyze(prices) {
+      const start = prices[0], end = prices[prices.length - 1];
+      const min = Math.min(...prices), max = Math.max(...prices);
+      const mean = prices.reduce((a, b) => a + b, 0) / prices.length;
+      const variance = prices.reduce((a, b) => a + Math.pow(b - mean, 2), 0) / prices.length;
+      const stdDev = Math.sqrt(variance);
 
-  // ===== ユーティリティ =====
-  function pickRandom(arr){ return arr[Math.floor(Math.random()*arr.length)]; }
-  function weightedPick(items){ const r=Math.random(), sum=items.reduce((a,b)=>a+b.weight,0); let acc=0; for(const it of items){ acc+=it.weight/sum; if(r<=acc) return it; } return items[items.length-1]; }
+      const change = end - start;
+      const up = change >= 0;
+      const volatility = stdDev;
+      const range = max - min;
 
-  const TIME_SIGNATURES=[{label:"4/4",weight:0.3},{label:"3/4",weight:0.3},{label:"6/8",weight:0.25},{label:"5/4",weight:0.15}];
+      // Map to music params
+      const baseMidi = 60 + (up ? 0 : -3); // C4 base, bearish -> slightly lower
+      const BPM = Math.max(80, Math.min(150, Math.round(100 + volatility))); // volatility nudges tempo
+      const timeSigs = ["4/4", "3/4", "6/8", "5/4"];
+      const timeSig = timeSigs[Math.floor(Math.random() * timeSigs.length)];
+      const beatsPerBar = timeSig === "6/8" ? 6 : parseInt(timeSig, 10);
+      const bars = 4;
 
-  function simulatePriceSeries(){
-    let price=100+Math.random()*20, series=[]; for(let i=0;i<360;i++){ const drift=(Math.random()-0.5)*0.25, shock=(Math.random()-0.5)*0.9; price=Math.max(1,price+drift+shock); series.push(price); }
-    const start=series[0], end=series[series.length-1], min=Math.min(...series), max=Math.max(...series), mean=series.reduce((a,b)=>a+b,0)/series.length, variance=series.reduce((a,b)=>a+Math.pow(b-mean,2),0)/series.length;
-    return {change:end-start, range:max-min, volatility:Math.sqrt(variance)};
-  }
+      return { change, range, volatility, baseMidi, BPM, timeSig, beatsPerBar, bars, up };
+    }
 
-  function describeMood(change,timeSig){
-    const dir=change>=0?"明るめ":"落ち着き";
-    const sigFeel={"4/4":"安定グルーヴ","3/4":"ワルツ","6/8":"軽快","5/4":"ちょっとズレ"}[timeSig]||"グルーヴ";
-    return `${dir}・${sigFeel}`;
-  }
+    // ===== Helpers =====
+    function midiToHz(midi) {
+      return 440 * Math.pow(2, (midi - 69) / 12);
+    }
+    const MAJOR = [0,2,4,5,7,9,11];
+    const MINOR = [0,2,3,5,7,8,10];
 
-  function createResultCard({ticker,timeSig,mood,BPM,bars}){
-    const card=document.createElement("div"); card.className="card";
-    const title=document.createElement("h4"); title.textContent=ticker;
-    const row=document.createElement("div"); row.innerHTML=`<span class="badge">${mood}</span><span class="timeSig">${timeSig}</span>`;
-    const meta=document.createElement("div"); meta.className="meta"; meta.textContent=`BPM: ${BPM} / Bars: ${bars}`;
-    card.appendChild(title); card.appendChild(row); card.appendChild(meta); return card;
-  }
+    function nearestScaleStep(scale, semitone) {
+      const octave = Math.floor(semitone / 12);
+      const inOct = semitone - octave * 12;
+      let nearest = scale[0], diff = Infinity;
+      for (const s of scale) {
+        const d = Math.abs(s - inOct);
+        if (d < diff) { diff = d; nearest = s; }
+      }
+      return octave * 12 + nearest;
+    }
 
-  // ===== 音再生 =====
-  function play(params){
-    ensureAudio();
-    const ctx=audioCtx;
-    const master=ctx.createGain(); master.gain.value=params.vol||0.2; master.connect(ctx.destination);
-    const now=ctx.currentTime;
-    const osc=ctx.createOscillator(); osc.type="sine"; osc.frequency.setValueAtTime(220,now); osc.connect(master);
-    osc.start(now); osc.stop(now+10);
-  }
+    function buildProgression(isMajor) {
+      const progressions = isMajor
+        ? [[0,7,9,5], [0,5,7,0], [2,7,0,0]]
+        : [[0,7,8,5], [0,3,7,0], [0,10,5,7]];
+      return progressions[Math.floor(Math.random() * progressions.length)];
+    }
 
-  // ===== カプセルトイボタン =====
-  const rollBtn=document.getElementById("rollBtn");
-  const resultsEl=document.getElementById("results");
+    // ===== Play short phrase (~10s) =====
+    function playPhrase(params) {
+      ensureAudio();
+      const t0 = audioCtx.currentTime;
+      const scale = params.up ? MAJOR : MINOR;
+      const prog = buildProgression(params.up);
+      const beats = params.beatsPerBar * params.bars;
+      const beatDur = 60 / params.BPM;
+      const phraseDur = beats * beatDur;
 
-  rollBtn.addEventListener("click",()=>{
-    ensureAudio();
-    const ticker=pickRandom(TOPIX100);
-    const timeSig=weightedPick(TIME_SIGNATURES).label;
-    const stats=simulatePriceSeries();
-    const params={BPM:Math.round((stats.volatility+1)*100), bars:4, vol:0.2};
-    play(params);
-    const mood=describeMood(stats.change,timeSig);
-    const card=createResultCard({ticker,timeSig,mood,BPM:params.BPM,bars:params.bars});
-    const current=Array.from(resultsEl.children); if(current.length>=2) resultsEl.removeChild(current[0]);
-    resultsEl.appendChild(card);
-  });
-</script>
+      // Simple synth: oscillator + gain envelope
+      const master = audioCtx.createGain();
+      master.gain.value = 0.3;
+      master.connect(audioCtx.destination);
+
+      const osc = audioCtx.createOscillator();
+      osc.type = "triangle";
+      const g = audioCtx.createGain();
+      g.gain.value = 0.0;
+      osc.connect(g).connect(master);
+      osc.start(t0);
+
+      // Schedule notes on each beat, walking through progression
+      for (let i = 0; i < beats; i++) {
+        const bar = Math.floor(i / params.beatsPerBar);
+        const degree = prog[bar % prog.length];
+        const semitone = params.baseMidi + degree;
+        const quantized = nearestScaleStep(scale, semitone);
+        const hz = midiToHz(quantized);
+
+        const start = t0 + i * beatDur;
+        const end = start + beatDur * 0.9;
+
+        osc.frequency.setValueAtTime(hz, start);
+
+        // envelope
+        g.gain.cancelScheduledValues(start);
+        g.gain.setValueAtTime(0.0, start);
+        g.gain.linearRampToValueAtTime(0.28, start + beatDur * 0.05);
+        g.gain.linearRampToValueAtTime(0.18, start + beatDur * 0.4);
+        g.gain.linearRampToValueAtTime(0.0, end);
+      }
+
+      osc.stop(t0 + phraseDur + 0.05);
+      return phraseDur;
+    }
+
+    // ===== UI bindings =====
+    const resultsEl = document.getElementById("results");
+    const rollBtn = document.getElementById("rollBtn");
+    const symbolInput = document.getElementById("symbolInput");
+
+    rollBtn.addEventListener("click", async () => {
+      try {
+        ensureAudio(); // crucial for mobile
+        rollBtn.disabled = true;
+        rollBtn.textContent = "取得中…";
+
+        const symbol = symbolInput.value.trim() || "7203.T";
+        const prices = await fetchStock(symbol);
+        const stats = analyze(prices);
+        const dur = playPhrase(stats);
+
+        // Render quick stats
+        const card = document.createElement("div");
+        card.className = "card";
+        card.innerHTML = `
+          <h4>${symbol}</h4>
+          <div class="badge">BPM: ${stats.BPM}</div>
+          <div class="timeSig">${stats.timeSig}, bars: ${stats.bars}</div>
+          <div class="label">change: ${stats.change.toFixed(2)} / range: ${stats.range.toFixed(2)} / vol: ${stats.volatility.toFixed(2)}</div>
+          <div class="label">phrase: ~${dur.toFixed(1)} sec</div>
+        `;
+        resultsEl.prepend(card);
+      } catch (e) {
+        const card = document.createElement("div");
+        card.className = "card";
+        card.innerHTML = `<h4>エラー</h4><div class="label">${String(e)}</div>`;
+        resultsEl.prepend(card);
+      } finally {
+        rollBtn.disabled = false;
+        rollBtn.textContent = "カプセルトイを回す";
+      }
+    });
+  </script>
 </body>
 </html>
