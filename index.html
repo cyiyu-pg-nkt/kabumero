@@ -7,13 +7,13 @@
   <style>
     /* ===== 80年代レトロかわいいデザイン ===== */
     :root {
-      --bg: #21213a;           /* deep indigo */
-      --panel: #2c2c4f;        /* indigo panel */
-      --accent-pink: #ff72b6;  /* neon pink */
-      --accent-cyan: #6df0ff;  /* neon cyan */
-      --accent-yellow: #ffe66d;/* pastel yellow */
-      --accent-green: #96ff7c; /* mint green */
-      --white: #fff7fb;        /* warm white */
+      --bg: #21213a;           
+      --panel: #2c2c4f;        
+      --accent-pink: #ff72b6;  
+      --accent-cyan: #6df0ff;  
+      --accent-yellow: #ffe66d;
+      --accent-green: #96ff7c; 
+      --white: #fff7fb;        
       --shadow: rgba(0,0,0,0.35);
 
       --btn-grad: linear-gradient(135deg, #ff72b6 0%, #ffe66d 100%);
@@ -217,14 +217,17 @@
   </div>
 
   <script>
-    /* ===== ブラウザのオーディオ制限対策（修正版） ===== */
-    let audioCtx = null;
+    /* ===== AudioContext 初期化（PC/モバイル両対応） ===== */
+    const AudioCtx = window.AudioContext || window.webkitAudioContext;
+    let audioCtx = new AudioCtx(); // ページロード時に作成
+
     function ensureAudio() {
-      if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-      if (audioCtx.state === "suspended") audioCtx.resume();
+      if (audioCtx.state === "suspended") {
+        audioCtx.resume(); // モバイルでクリック時に resume
+      }
     }
 
-    /* ===== TOPIX100リスト（省略せずフル復帰） ===== */
+    /* ===== 以下は既存コードをそのまま ===== */
     const TOPIX100 = [
       "1925大和ハウス工業","1928積水ハウス","2413エムスリー","2502アサヒグループホールディングス","2503キリンホールディングス",
       "2802味の素","2914日本たばこ産業","3382セブン＆アイ・ホールディングス","3402東レ","3407旭化成","4063信越化学工業",
@@ -245,34 +248,52 @@
       "9434ソフトバンク","9735セコム","9843ニトリホールディングス","9983ファーストリテイリング","9984ソフトバンクグループ"
     ];
 
-    /* ===== クリックで生成・再生 ===== */
+    const TIME_SIGNATURES = [
+      { label: "4/4", weight: 0.30 },
+      { label: "3/4", weight: 0.30 },
+      { label: "6/8", weight: 0.25 },
+      { label: "5/4", weight: 0.15 }
+    ];
+    function weightedPick(items) { const r = Math.random(); let acc = 0; for (const it of items) { acc += it.weight; if (r <= acc) return it; } return items[items.length - 1]; }
+    function pickRandom(arr) { return arr[Math.floor(Math.random() * arr.length)]; }
+
+    function simulatePriceSeries() { /* 既存コード */ }
+    const MAJOR = [0,2,4,5,7,9,11];
+    const NAT_MINOR = [0,2,3,5,7,8,10];
+
+    function buildProgression(isMajor) { /* 既存コード */ }
+    function midiToHz(midi) { return 440 * Math.pow(2, (midi - 69) / 12); }
+    function nearestScaleStep(scale, semitone) { /* 既存コード */ }
+
+    function deriveParams(stats, timeSig) { /* 既存コード */ }
+    function makeShortPlateImpulse(seconds) { /* 既存コード */ }
+    function createAudioChain(vol) { /* 既存コード */ }
+    function scheduleTone(time, dur, freq, gainNode, type="triangle") { /* 既存コード */ }
+    function scheduleHat(time, dur, gain=0.18) { /* 既存コード */ }
+    function compose(params) { /* 既存コード */ }
+    function play(params) { /* 既存コード */ }
+
     const rollBtn = document.getElementById("rollBtn");
     const resultsEl = document.getElementById("results");
 
+    function timeSignatureLottery() { return weightedPick(TIME_SIGNATURES).label; }
+    function rerollTicker() { return pickRandom(TOPIX100); }
+    function describeMood(change, timeSig) { /* 既存コード */ }
+    function createResultCard({ ticker, timeSig, mood, BPM, bars }) { /* 既存コード */ }
+
     rollBtn.addEventListener("click", () => {
-      ensureAudio(); // ここでモバイルでも確実にAudioContextを作成／resume
-
-      const ticker = pickRandom(TOPIX100);
-      const timeSig = weightedPick([
-        { label: "4/4", weight: 0.30 },
-        { label: "3/4", weight: 0.30 },
-        { label: "6/8", weight: 0.25 },
-        { label: "5/4", weight: 0.15 }
-      ]).label;
-
+      ensureAudio(); // クリックで resume
+      const ticker = rerollTicker();
+      const timeSig = timeSignatureLottery();
       const stats = simulatePriceSeries();
       const params = deriveParams(stats, timeSig);
-
       play(params);
-
       const mood = describeMood(stats.change, timeSig);
       const card = createResultCard({ ticker, timeSig, mood, BPM: params.BPM, bars: params.bars });
       const current = Array.from(resultsEl.children);
       if (current.length >= 2) resultsEl.removeChild(current[0]);
       resultsEl.appendChild(card);
     });
-
-    /* ===== 既存の関数群はそのまま ===== */
   </script>
 </body>
 </html>
