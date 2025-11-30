@@ -7,13 +7,13 @@
   <style>
     /* ===== 80年代レトロかわいいデザイン ===== */
     :root {
-      --bg: #21213a;           
-      --panel: #2c2c4f;        
-      --accent-pink: #ff72b6;  
-      --accent-cyan: #6df0ff;  
+      --bg: #21213a;
+      --panel: #2c2c4f;
+      --accent-pink: #ff72b6;
+      --accent-cyan: #6df0ff;
       --accent-yellow: #ffe66d;
-      --accent-green: #96ff7c; 
-      --white: #fff7fb;        
+      --accent-green: #96ff7c;
+      --white: #fff7fb;
       --shadow: rgba(0,0,0,0.35);
 
       --btn-grad: linear-gradient(135deg, #ff72b6 0%, #ffe66d 100%);
@@ -217,17 +217,24 @@
   </div>
 
   <script>
-    /* ===== AudioContext 初期化（PC/モバイル両対応） ===== */
+    /* ===== ブラウザのオーディオ制限対策（PC・モバイル両対応） ===== */
     const AudioCtx = window.AudioContext || window.webkitAudioContext;
-    let audioCtx = new AudioCtx(); // ページロード時に作成
+    let audioCtx = null;
 
     function ensureAudio() {
-      if (audioCtx.state === "suspended") {
-        audioCtx.resume(); // モバイルでクリック時に resume
-      }
+      if (!audioCtx) audioCtx = new AudioCtx();
+      if (audioCtx.state === "suspended") audioCtx.resume();
     }
 
-    /* ===== 以下は既存コードをそのまま ===== */
+    // モバイル用：最初のタッチで AudioContext 起動
+    function initAudioOnFirstTouch() {
+      if (!audioCtx) audioCtx = new AudioCtx();
+      if (audioCtx.state === "suspended") audioCtx.resume();
+      document.body.removeEventListener("touchstart", initAudioOnFirstTouch);
+    }
+    document.body.addEventListener("touchstart", initAudioOnFirstTouch, { once: true });
+
+    /* ===== TOPIX100リスト ===== */
     const TOPIX100 = [
       "1925大和ハウス工業","1928積水ハウス","2413エムスリー","2502アサヒグループホールディングス","2503キリンホールディングス",
       "2802味の素","2914日本たばこ産業","3382セブン＆アイ・ホールディングス","3402東レ","3407旭化成","4063信越化学工業",
@@ -254,44 +261,102 @@
       { label: "6/8", weight: 0.25 },
       { label: "5/4", weight: 0.15 }
     ];
-    function weightedPick(items) { const r = Math.random(); let acc = 0; for (const it of items) { acc += it.weight; if (r <= acc) return it; } return items[items.length - 1]; }
+
+    function weightedPick(items) {
+      const r = Math.random(); let acc = 0;
+      for (const it of items) { acc += it.weight; if (r <= acc) return it; }
+      return items[items.length - 1];
+    }
     function pickRandom(arr) { return arr[Math.floor(Math.random() * arr.length)]; }
 
-    function simulatePriceSeries() { /* 既存コード */ }
+    /* ===== 価格データの疑似生成 ===== */
+    function simulatePriceSeries() {
+      const len = 360;
+      let price = 100 + Math.random() * 20;
+      const series = [];
+      for (let i = 0; i < len; i++) {
+        const drift = (Math.random() - 0.5) * 0.25;
+        const shock = (Math.random() - 0.5) * 0.9;
+        price = Math.max(1, price + drift + shock);
+        series.push(price);
+      }
+      const start = series[0], end = series[series.length - 1];
+      const min = Math.min(...series), max = Math.max(...series);
+      const mean = series.reduce((a,b) => a+b, 0) / series.length;
+      const variance = series.reduce((a,b) => a + Math.pow(b-mean,2), 0) / series.length;
+      const stdDev = Math.sqrt(variance);
+      return { change: end - start, range: max - min, volatility: stdDev };
+    }
+
+    /* ===== 音楽生成ロジック ===== */
     const MAJOR = [0,2,4,5,7,9,11];
     const NAT_MINOR = [0,2,3,5,7,8,10];
 
-    function buildProgression(isMajor) { /* 既存コード */ }
-    function midiToHz(midi) { return 440 * Math.pow(2, (midi - 69) / 12); }
-    function nearestScaleStep(scale, semitone) { /* 既存コード */ }
+    function buildProgression(isMajor) {
+      const progressions = isMajor
+        ? [[0, 7, 9, 5],[0, 5, 7, 0],[2, 7, 0, 0]]
+        : [[0, 7, 8, 5],[0, 5, 7, 3],[2, 7, 0, 3]];
+      return pickRandom(progressions);
+    }
 
-    function deriveParams(stats, timeSig) { /* 既存コード */ }
-    function makeShortPlateImpulse(seconds) { /* 既存コード */ }
-    function createAudioChain(vol) { /* 既存コード */ }
-    function scheduleTone(time, dur, freq, gainNode, type="triangle") { /* 既存コード */ }
-    function scheduleHat(time, dur, gain=0.18) { /* 既存コード */ }
-    function compose(params) { /* 既存コード */ }
-    function play(params) { /* 既存コード */ }
+    function deriveParams(stats, timeSig) {
+      const BPM = 60 + Math.round(stats.volatility*30);
+      const bars = 4 + Math.floor(stats.range/10);
+      return { scale: stats.change >=0 ? MAJOR : NAT_MINOR, progression: buildProgression(stats.change>=0), BPM, bars, timeSig };
+    }
 
+    function describeMood(change, timeSig) {
+      if(change>0) return "上昇系ハッピー"; if(change<0) return "下降系ブルー"; return "レンジ安定系";
+    }
+
+    function createResultCard({ticker, timeSig, mood, BPM, bars}) {
+      const card = document.createElement("div"); card.className="card";
+      card.innerHTML = `<h4>${ticker}</h4>
+        <div class="meta"><span class="timeSig">${timeSig.label}</span> <span class="badge">BPM:${BPM}</span> <span class="badge">Bars:${bars}</span></div>
+        <p style="margin-top:6px;">ムード: ${mood}</p>`;
+      return card;
+    }
+
+    function timeSignatureLottery() { return weightedPick(TIME_SIGNATURES); }
+    function rerollTicker() { return pickRandom(TOPIX100); }
+
+    function play({scale, progression, BPM, bars}) {
+      const secPerBeat = 60/BPM;
+      const ctx = audioCtx; if(!ctx) return;
+      const now = ctx.currentTime;
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.type = "sine"; osc.connect(gain); gain.connect(ctx.destination);
+      gain.gain.setValueAtTime(0.15, now);
+      let t = now;
+      for(let bar=0; bar<bars; bar++){
+        for(let beat=0; beat<4; beat++){
+          const note = scale[Math.floor(Math.random()*scale.length)];
+          osc.frequency.setValueAtTime(220*Math.pow(2,note/12), t);
+          t += secPerBeat;
+        }
+      }
+      osc.start(now); osc.stop(t);
+    }
+
+    /* ===== カプセルトイ操作 ===== */
     const rollBtn = document.getElementById("rollBtn");
     const resultsEl = document.getElementById("results");
 
-    function timeSignatureLottery() { return weightedPick(TIME_SIGNATURES).label; }
-    function rerollTicker() { return pickRandom(TOPIX100); }
-    function describeMood(change, timeSig) { /* 既存コード */ }
-    function createResultCard({ ticker, timeSig, mood, BPM, bars }) { /* 既存コード */ }
-
     rollBtn.addEventListener("click", () => {
-      ensureAudio(); // クリックで resume
+      ensureAudio(); // ユーザー操作で必ず再生可能
+
       const ticker = rerollTicker();
       const timeSig = timeSignatureLottery();
       const stats = simulatePriceSeries();
       const params = deriveParams(stats, timeSig);
+
       play(params);
+
       const mood = describeMood(stats.change, timeSig);
       const card = createResultCard({ ticker, timeSig, mood, BPM: params.BPM, bars: params.bars });
       const current = Array.from(resultsEl.children);
-      if (current.length >= 2) resultsEl.removeChild(current[0]);
+      if(current.length >= 2) resultsEl.removeChild(current[0]);
       resultsEl.appendChild(card);
     });
   </script>
