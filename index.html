@@ -7,542 +7,145 @@
   <style>
     /* ===== 80年代レトロかわいいデザイン ===== */
     :root {
-      --bg: #21213a;           /* deep indigo */
-      --panel: #2c2c4f;        /* indigo panel */
-      --accent-pink: #ff72b6;  /* neon pink */
-      --accent-cyan: #6df0ff;  /* neon cyan */
-      --accent-yellow: #ffe66d;/* pastel yellow */
-      --accent-green: #96ff7c; /* mint green */
-      --white: #fff7fb;        /* warm white */
+      --bg: #21213a;
+      --panel: #2c2c4f;
+      --accent-pink: #ff72b6;
+      --accent-cyan: #6df0ff;
+      --accent-yellow: #ffe66d;
+      --accent-green: #96ff7c;
+      --white: #fff7fb;
       --shadow: rgba(0,0,0,0.35);
-
       --btn-grad: linear-gradient(135deg, #ff72b6 0%, #ffe66d 100%);
       --ring-grad: conic-gradient(from 0deg, #ff72b6, #6df0ff, #96ff7c, #ffe66d, #ff72b6);
     }
     * { box-sizing: border-box; }
-    html, body {
-      margin: 0;
-      height: 100%;
-      background:
-        radial-gradient(1200px 600px at 20% 10%, rgba(255,114,182,0.25), transparent 60%),
-        radial-gradient(1200px 600px at 80% 90%, rgba(109,240,255,0.18), transparent 60%),
-        var(--bg);
-      color: var(--white);
-      font-family: "Segoe UI", "Yu Gothic UI", system-ui;
-    }
+    html, body { margin: 0; height: 100%; background: radial-gradient(1200px 600px at 20% 10%, rgba(255,114,182,0.25), transparent 60%), radial-gradient(1200px 600px at 80% 90%, rgba(109,240,255,0.18), transparent 60%), var(--bg); color: var(--white); font-family: "Segoe UI","Yu Gothic UI",system-ui; }
     .container { max-width: 980px; margin: 0 auto; padding: 24px; }
     header { text-align: center; margin-bottom: 16px; }
-    .title {
-      font-weight: 900;
-      font-size: 40px;
-      letter-spacing: 2px;
-      display: inline-block;
-      padding: 10px 18px;
-      background: var(--btn-grad);
-      color: #1c1230;
-      border-radius: 16px;
-      box-shadow: 0 8px 20px var(--shadow), inset 0 -3px 0 rgba(0,0,0,0.15);
-      text-shadow: 0 1px 0 rgba(255,255,255,0.6);
-    }
-    .catch {
-      margin-top: 10px;
-      font-size: 16px;
-      color: var(--accent-yellow);
-      text-shadow: 0 1px 0 rgba(0,0,0,0.4);
-    }
-    .sub {
-      margin-top: 6px;
-      font-size: 14px;
-      color: #e9d8ff;
-      opacity: 0.9;
-    }
-
-    /* ===== Capsule toy visual ===== */
-    .stage {
-      display: grid;
-      grid-template-columns: 1.2fr 0.8fr;
-      gap: 24px;
-      align-items: start;
-      margin-top: 18px;
-    }
-    .machine {
-      background: var(--panel);
-      border-radius: 18px;
-      padding: 20px;
-      box-shadow: 0 10px 30px var(--shadow);
-      position: relative;
-      overflow: hidden;
-    }
-    .ring {
-      width: 220px; height: 220px;
-      margin: 0 auto;
-      border-radius: 50%;
-      background: var(--ring-grad);
-      filter: saturate(1.3);
-      box-shadow: 0 6px 18px var(--shadow), inset 0 0 24px rgba(255,255,255,0.25);
-      position: relative;
-      animation: spin 8s linear infinite;
-    }
+    .title { font-weight: 900; font-size: 40px; letter-spacing: 2px; display: inline-block; padding: 10px 18px; background: var(--btn-grad); color: #1c1230; border-radius: 16px; box-shadow: 0 8px 20px var(--shadow), inset 0 -3px 0 rgba(0,0,0,0.15); text-shadow: 0 1px 0 rgba(255,255,255,0.6); }
+    .catch { margin-top: 10px; font-size: 16px; color: var(--accent-yellow); text-shadow: 0 1px 0 rgba(0,0,0,0.4); }
+    .sub { margin-top: 6px; font-size: 14px; color: #e9d8ff; opacity: 0.9; }
+    .stage { display: grid; grid-template-columns: 1.2fr 0.8fr; gap: 24px; align-items: start; margin-top: 18px; }
+    .machine { background: var(--panel); border-radius: 18px; padding: 20px; box-shadow: 0 10px 30px var(--shadow); position: relative; overflow: hidden; }
+    .ring { width: 220px; height: 220px; margin: 0 auto; border-radius: 50%; background: var(--ring-grad); filter: saturate(1.3); box-shadow: 0 6px 18px var(--shadow), inset 0 0 24px rgba(255,255,255,0.25); position: relative; animation: spin 8s linear infinite; }
     @keyframes spin { to { transform: rotate(360deg); } }
-    .capsule {
-      position: absolute;
-      top: 50%; left: 50%;
-      transform: translate(-50%, -50%);
-      width: 160px; height: 160px;
-      border-radius: 50%;
-      background:
-        radial-gradient(closest-side, rgba(255,255,255,0.7), rgba(255,255,255,0.05)),
-        linear-gradient(180deg, rgba(255,114,182,0.5), rgba(255,114,182,0.05)),
-        linear-gradient(45deg, rgba(109,240,255,0.8), rgba(109,240,255,0.15));
-      box-shadow: 0 4px 12px var(--shadow), inset 0 2px 12px rgba(255,255,255,0.25);
-    }
+    .capsule { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 160px; height: 160px; border-radius: 50%; background: radial-gradient(closest-side, rgba(255,255,255,0.7), rgba(255,255,255,0.05)), linear-gradient(180deg, rgba(255,114,182,0.5), rgba(255,114,182,0.05)), linear-gradient(45deg, rgba(109,240,255,0.8), rgba(109,240,255,0.15)); box-shadow: 0 4px 12px var(--shadow), inset 0 2px 12px rgba(255,255,255,0.25); }
     .handle { margin-top: 18px; display: flex; justify-content: center; }
-    .btn {
-      appearance: none;
-      border: none;
-      padding: 12px 20px;
-      font-weight: 900;
-      font-size: 16px;
-      color: #1c1230;
-      background: var(--btn-grad);
-      border-radius: 14px;
-      box-shadow: 0 6px 16px var(--shadow), inset 0 -3px 0 rgba(0,0,0,0.15);
-      cursor: pointer;
-      transition: transform 0.05s ease, box-shadow 0.2s ease;
-    }
+    .btn { appearance: none; border: none; padding: 12px 20px; font-weight: 900; font-size: 16px; color: #1c1230; background: var(--btn-grad); border-radius: 14px; box-shadow: 0 6px 16px var(--shadow), inset 0 -3px 0 rgba(0,0,0,0.15); cursor: pointer; transition: transform 0.05s ease, box-shadow 0.2s ease; }
     .btn:hover { transform: translateY(-1px); }
     .btn:active { transform: translateY(1px); box-shadow: 0 4px 12px var(--shadow), inset 0 -1px 0 rgba(0,0,0,0.25); }
-
-    /* ===== Info panel ===== */
-    .info {
-      background: var(--panel);
-      border-radius: 18px;
-      padding: 18px;
-      box-shadow: 0 10px 30px var(--shadow);
-    }
-    .info h3 {
-      margin: 0 0 8px;
-      font-size: 18px;
-      color: var(--accent-cyan);
-      text-shadow: 0 1px 0 rgba(0,0,0,0.4);
-    }
+    .info { background: var(--panel); border-radius: 18px; padding: 18px; box-shadow: 0 10px 30px var(--shadow); }
+    .info h3 { margin: 0 0 8px; font-size: 18px; color: var(--accent-cyan); text-shadow: 0 1px 0 rgba(0,0,0,0.4); }
     .info p { margin: 8px 0; font-size: 14px; line-height: 1.6; opacity: 0.9; }
     .muted { opacity: 0.85; font-size: 13px; color: #d6c9ff; }
-
-    /* ===== Result panel ===== */
-    .results {
-      margin-top: 22px;
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 16px;
-    }
-    .card {
-      background: #353565;
-      border: 1px solid rgba(255,255,255,0.08);
-      border-radius: 14px;
-      padding: 12px;
-      box-shadow: 0 6px 18px var(--shadow);
-    }
+    .results { margin-top: 22px; display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+    .card { background: #353565; border: 1px solid rgba(255,255,255,0.08); border-radius: 14px; padding: 12px; box-shadow: 0 6px 18px var(--shadow); }
     .card h4 { margin: 0 0 6px; font-size: 16px; color: var(--accent-yellow); }
     .meta { font-size: 13px; color: #e2e0ff; margin-top: 6px; }
-    .badge {
-      display: inline-block;
-      padding: 4px 8px;
-      font-size: 12px;
-      font-weight: 800;
-      color: #1c1230;
-      background: var(--accent-green);
-      border-radius: 10px;
-      margin-right: 6px;
-    }
-    .timeSig {
-      display: inline-block;
-      padding: 4px 8px;
-      font-size: 12px;
-      font-weight: 800;
-      color: #1c1230;
-      background: var(--accent-cyan);
-      border-radius: 10px;
-    }
-
-    footer {
-      text-align: center;
-      margin: 28px 0 8px;
-      font-size: 12px;
-      color: #bfb8ff; opacity: 0.8;
-    }
-
-    @media (max-width: 800px) {
-      .stage { grid-template-columns: 1fr; }
-      .results { grid-template-columns: 1fr; }
-      .ring { width: 180px; height: 180px; }
-      .capsule { width: 130px; height: 130px; }
-    }
+    .badge { display: inline-block; padding: 4px 8px; font-size: 12px; font-weight: 800; color: #1c1230; background: var(--accent-green); border-radius: 10px; margin-right: 6px; }
+    .timeSig { display: inline-block; padding: 4px 8px; font-size: 12px; font-weight: 800; color: #1c1230; background: var(--accent-cyan); border-radius: 10px; }
+    footer { text-align: center; margin: 28px 0 8px; font-size: 12px; color: #bfb8ff; opacity: 0.8; }
+    @media (max-width: 800px) { .stage { grid-template-columns: 1fr; } .results { grid-template-columns: 1fr; } .ring { width: 180px; height: 180px; } .capsule { width: 130px; height: 130px; } }
   </style>
 </head>
 <body>
-  <div class="container">
-    <header>
-      <div class="title">株メロ♪</div>
-      <div class="catch">株価の値動きで意外な音楽ができちゃう！</div>
-      <div class="sub">カプセルトイを回すだけで、値動きデータに基づいた短い曲が自動生成されます。どんな曲が出るか、楽しんで体験しよう！</div>
-    </header>
+<div class="container">
+  <header>
+    <div class="title">株メロ♪</div>
+    <div class="catch">株価の値動きで意外な音楽ができちゃう！</div>
+    <div class="sub">カプセルトイを回すだけで、値動きデータに基づいた短い曲が自動生成されます。どんな曲が出るか、楽しんで体験しよう！</div>
+  </header>
 
-    <div class="stage">
-      <!-- カプセルトイ本体 -->
-      <section class="machine" aria-label="カプセルトイ">
-        <div class="ring" aria-hidden="true">
-          <div class="capsule" aria-hidden="true"></div>
-        </div>
-        <div class="handle">
-          <button id="rollBtn" class="btn">カプセルトイを回す</button>
-        </div>
-        <p class="muted" style="text-align:center;margin-top:10px;">クリックすると約10秒の短い曲が生成／再生されます。</p>
-      </section>
+  <div class="stage">
+    <section class="machine" aria-label="カプセルトイ">
+      <div class="ring" aria-hidden="true">
+        <div class="capsule" aria-hidden="true"></div>
+      </div>
+      <div class="handle">
+        <button id="rollBtn" class="btn">カプセルトイを回す</button>
+      </div>
+      <p class="muted" style="text-align:center;margin-top:10px;">クリック／タップで約10秒の短い曲を再生</p>
+    </section>
 
-      <!-- 情報パネル -->
-      <aside class="info">
-        <h3>基本コンセプト</h3>
-        <p>ユーザーは銘柄を入力せず、カプセルトイを回すだけで完全ランダム抽選。曲は株価起源のイメージに基づいて生成され、短くて意外性のある体験を提供します。</p>
-        <h3>曲生成のルール</h3>
-        <p>上昇／下降は音階、値幅は音量、ボラティリティはリズムやランダム性に反映。拍子はランダム抽選し、曲全体は一つの拍子で統一します（4/4・3/4・6/8・5/4）。</p>
-        <p class="muted">禁止事項：架空企業・仮想銘柄の使用禁止／投資助言・株価情報は表示しません。</p>
-      </aside>
-    </div>
-
-    <!-- 結果（最大2件） -->
-    <section class="results" id="results" aria-live="polite"></section>
-
-    <footer>© 株メロ♪ カラフルPOPのレトロかわいい体験</footer>
+    <aside class="info">
+      <h3>基本コンセプト</h3>
+      <p>ユーザーは銘柄を入力せず、カプセルトイを回すだけで完全ランダム抽選。曲は株価起源のイメージに基づいて生成され、短くて意外性のある体験を提供します。</p>
+      <h3>曲生成のルール</h3>
+      <p>上昇／下降は音階、値幅は音量、ボラティリティはリズムやランダム性に反映。拍子はランダム抽選し、曲全体は一つの拍子で統一します（4/4・3/4・6/8・5/4）。</p>
+      <p class="muted">禁止事項：架空企業・仮想銘柄の使用禁止／投資助言・株価情報は表示しません。</p>
+    </aside>
   </div>
 
-  <script>
-    /* ===== ブラウザのオーディオ制限対策 ===== */
-    const AudioCtx = window.AudioContext || window.webkitAudioContext;
-    let audioCtx = null;
-    function ensureAudio() {
-      if (!audioCtx) audioCtx = new AudioCtx();
-      if (audioCtx.state === "suspended") audioCtx.resume();
-    }
+  <section class="results" id="results" aria-live="polite"></section>
+  <footer>© 株メロ♪ カラフルPOPのレトロかわいい体験</footer>
+</div>
 
-    /* ===== TOPIX100リスト（仕様どおりフル復帰） ===== */
-    const TOPIX100 = [
-      "1925大和ハウス工業","1928積水ハウス","2413エムスリー","2502アサヒグループホールディングス","2503キリンホールディングス",
-      "2802味の素","2914日本たばこ産業","3382セブン＆アイ・ホールディングス","3402東レ","3407旭化成","4063信越化学工業",
-      "4188三菱ケミカルホールディングス","4452花王","4502武田薬品工業","4503アステラス製薬","4507塩野義製薬","4519中外製薬",
-      "4523エーザイ","4528小野薬品工業","4543テルモ","4568第一三共","4578大塚ホールディングス","4661オリエンタルランド",
-      "4689Ｚホールディングス","4901富士フイルムホールディングス","4911資生堂","5020ＥＮＥＯＳホールディングス","5108ブリヂストン",
-      "5401日本製鉄","5713住友金属鉱山","5802住友電気工業","6098リクルートホールディングス","6178日本郵政","6273ＳＭＣ",
-      "6301小松製作所","6326クボタ","6367ダイキン工業","6501日立製作所","6502東芝","6503三菱電機","6594日本電産","6645オムロン",
-      "6702富士通","6723ルネサスエレクトロニクス","6752パナソニック","6758ソニー","6861キーエンス","6869シスメックス",
-      "6902デンソー","6920レーザーテック","6954ファナック","6971京セラ","6981村田製作所","7011三菱重工業","7201日産自動車",
-      "7203トヨタ自動車","7267本田技研工業","7269スズキ","7270ＳＵＢＡＲＵ","7309シマノ","7733オリンパス","7741ＨＯＹＡ",
-      "7751キヤノン","7832バンダイナムコホールディングス","7974任天堂","8001伊藤忠商事","8002丸紅","8031三井物産","8035東京エレクトロン",
-      "8053住友商事","8058三菱商事","8113ユニ・チャーム","8267イオン","8306三菱ＵＦＪフィナンシャル・グループ","8308りそなホールディングス",
-      "8309三井住友トラスト・ホールディングス","8316三井住友フィナンシャルグループ","8411みずほフィナンシャルグループ","8591オリックス",
-      "8604野村ホールディングス","8630ＳＯＭＰＯホールディングス","8697日本取引所グループ","8725ＭＳ＆ＡＤインシュアランスグループホルディングス",
-      "8750第一生命ホールディングス","8766東京海上ホールディングス","8801三井不動産","8802三菱地所","8830住友不動産","9020東日本旅客鉄道",
-      "9021西日本旅客鉄道","9022東海旅客鉄道","9101日本郵船","9202ＡＮＡホールディングス","9432日本電信電話","9433ＫＤＤＩ",
-      "9434ソフトバンク","9735セコム","9843ニトリホールディングス","9983ファーストリテイリング","9984ソフトバンクグループ"
-    ];
+<script>
+  // ===== AudioContext 両対応初期化 =====
+  const AudioCtx = window.AudioContext || window.webkitAudioContext;
+  let audioCtx = null;
+  function ensureAudio() {
+    if (!audioCtx) audioCtx = new AudioCtx();
+    if (audioCtx.state === "suspended") audioCtx.resume();
+  }
+  // モバイル初回タッチでも起動
+  document.body.addEventListener("touchstart", ensureAudio, { once: true });
 
-    /* ===== 拍子抽選（仕様の確率） ===== */
-    const TIME_SIGNATURES = [
-      { label: "4/4", weight: 0.30 },
-      { label: "3/4", weight: 0.30 },
-      { label: "6/8", weight: 0.25 },
-      { label: "5/4", weight: 0.15 }
-    ];
-    function weightedPick(items) {
-      const r = Math.random(); let acc = 0;
-      for (const it of items) { acc += it.weight; if (r <= acc) return it; }
-      return items[items.length - 1];
-    }
-    function pickRandom(arr) { return arr[Math.floor(Math.random() * arr.length)]; }
+  // ===== TOPIX100リスト =====
+  const TOPIX100 = [ "1925大和ハウス工業","1928積水ハウス","2413エムスリー","2502アサヒグループホールディングス","2503キリンホールディングス","2802味の素","2914日本たばこ産業","3382セブン＆アイ・ホールディングス","3402東レ","3407旭化成","4063信越化学工業","4188三菱ケミカルホールディングス","4452花王","4502武田薬品工業","4503アステラス製薬","4507塩野義製薬","4519中外製薬","4523エーザイ","4528小野薬品工業","4543テルモ","4568第一三共","4578大塚ホールディングス","4661オリエンタルランド","4689Ｚホールディングス","4901富士フイルムホールディングス","4911資生堂","5020ＥＮＥＯＳホールディングス","5108ブリヂストン","5401日本製鉄","5713住友金属鉱山","5802住友電気工業","6098リクルートホールディングス","6178日本郵政","6273ＳＭＣ","6301小松製作所","6326クボタ","6367ダイキン工業","6501日立製作所","6502東芝","6503三菱電機","6594日本電産","6645オムロン","6702富士通","6723ルネサスエレクトロニクス","6752パナソニック","6758ソニー","6861キーエンス","6869シスメックス","6902デンソー","6920レーザーテック","6954ファナック","6971京セラ","6981村田製作所","7011三菱重工業","7201日産自動車","7203トヨタ自動車","7267本田技研工業","7269スズキ","7270ＳＵＢＡＲＵ","7309シマノ","7733オリンパス","7741ＨＯＹＡ","7751キヤノン","7832バンダイナムコホールディングス","7974任天堂","8001伊藤忠商事","8002丸紅","8031三井物産","8035東京エレクトロン","8053住友商事","8058三菱商事","8113ユニ・チャーム","8267イオン","8306三菱ＵＦＪフィナンシャル・グループ","8308りそなホールディングス","8309三井住友トラスト・ホールディングス","8316三井住友フィナンシャルグループ","8411みずほフィナンシャルグループ","8591オリックス","8604野村ホールディングス","8630ＳＯＭＰＯホールディングス","8697日本取引所グループ","8725ＭＳ＆ＡＤインシュアランスグループホルディングス","8750第一生命ホールディングス","8766東京海上ホールディングス","8801三井不動産","8802三菱地所","8830住友不動産","9020東日本旅客鉄道","9021西日本旅客鉄道","9022東海旅客鉄道","9101日本郵船","9202ＡＮＡホールディングス","9432日本電信電話","9433ＫＤＤＩ","9434ソフトバンク","9735セコム","9843ニトリホールディングス","9983ファーストリテイリング","9984ソフトバンクグループ"];
 
-    /* ===== 価格データの疑似生成（直近6時間相当） ===== */
-    function simulatePriceSeries() {
-      const len = 360; // 6h = 360min
-      let price = 100 + Math.random() * 20;
-      const series = [];
-      for (let i = 0; i < len; i++) {
-        const drift = (Math.random() - 0.5) * 0.25;
-        const shock = (Math.random() - 0.5) * 0.9;
-        price = Math.max(1, price + drift + shock);
-        series.push(price);
-      }
-      const start = series[0], end = series[series.length - 1];
-      const min = Math.min(...series), max = Math.max(...series);
-      const mean = series.reduce((a,b) => a+b, 0) / series.length;
-      const variance = series.reduce((a,b) => a + Math.pow(b-mean,2), 0) / series.length;
-      const stdDev = Math.sqrt(variance);
-      return { change: end - start, range: max - min, volatility: stdDev };
-    }
+  // ===== ユーティリティ =====
+  function pickRandom(arr){ return arr[Math.floor(Math.random()*arr.length)]; }
+  function weightedPick(items){ const r=Math.random(), sum=items.reduce((a,b)=>a+b.weight,0); let acc=0; for(const it of items){ acc+=it.weight/sum; if(r<=acc) return it; } return items[items.length-1]; }
 
-    /* ===== 音楽生成：多様性を強化した安定版ロジック ===== */
-    const MAJOR = [0,2,4,5,7,9,11];
-    const NAT_MINOR = [0,2,3,5,7,8,10];
+  const TIME_SIGNATURES=[{label:"4/4",weight:0.3},{label:"3/4",weight:0.3},{label:"6/8",weight:0.25},{label:"5/4",weight:0.15}];
 
-    function buildProgression(isMajor) {
-      // 複数の進行からランダム選択（似た曲調の抑制）
-      const progressions = isMajor
-        ? [
-            [0, 7, 9, 5],   // I–V–vi–IV
-            [0, 5, 7, 0],   // I–IV–V–I
-            [2, 7, 0, 0]    // ii–V–I–I
-          ]
-        : [
-            [0, 7, 8, 5],   // i–V–♭VI–IV
-            [0, 3, 7, 0],   // i–iv–V–i
-            [0, 10, 5, 7]   // i–♭VII–IV–V
-          ];
-      return progressions[Math.floor(Math.random() * progressions.length)];
-    }
+  function simulatePriceSeries(){
+    let price=100+Math.random()*20, series=[]; for(let i=0;i<360;i++){ const drift=(Math.random()-0.5)*0.25, shock=(Math.random()-0.5)*0.9; price=Math.max(1,price+drift+shock); series.push(price); }
+    const start=series[0], end=series[series.length-1], min=Math.min(...series), max=Math.max(...series), mean=series.reduce((a,b)=>a+b,0)/series.length, variance=series.reduce((a,b)=>a+Math.pow(b-mean,2),0)/series.length;
+    return {change:end-start, range:max-min, volatility:Math.sqrt(variance)};
+  }
 
-    function midiToHz(midi) { return 440 * Math.pow(2, (midi - 69) / 12); }
-    function nearestScaleStep(scale, semitone) {
-      const octave = Math.floor(semitone / 12);
-      const inOct = semitone - octave * 12;
-      let nearest = scale[0], diff = Infinity;
-      for (const s of scale) { const d = Math.abs(s - inOct); if (d < diff) { diff = d; nearest = s; } }
-      return octave * 12 + nearest;
-    }
+  function describeMood(change,timeSig){
+    const dir=change>=0?"明るめ":"落ち着き";
+    const sigFeel={"4/4":"安定グルーヴ","3/4":"ワルツ","6/8":"軽快","5/4":"ちょっとズレ"}[timeSig]||"グルーヴ";
+    return `${dir}・${sigFeel}`;
+  }
 
-    function deriveParams(stats, timeSigLabel) {
-      const up = stats.change >= 0;
-      const scale = up ? MAJOR : NAT_MINOR;
-      const baseMidi = 60 + (up ? 0 : -2); // C4中心（下落時やや低め）
-      const beatsPerBar = timeSigLabel === "6/8" ? 6 : parseInt(timeSigLabel.split("/")[0], 10);
-      const bars = 4;
-      // 約10秒をベースに、ボラティリティで幅を持たせる
-      let BPM = Math.round((bars * beatsPerBar * 60) / 10);
-      BPM = Math.max(80, Math.min(140, BPM + Math.round(stats.volatility) * (up ? 1 : -1)));
-      // 音量とランダム度（控えめ）
-      const vol = Math.min(0.9, Math.max(0.18, stats.range / 24));
-      let randAmt = Math.min(0.5, stats.volatility / 10);
-      if (timeSigLabel === "5/4" && stats.volatility > 6) randAmt = Math.min(0.65, randAmt + 0.1);
-      // 音色のバリエーション
-      const leadTypes = ["triangle","square","sine"];
-      const padTypes = ["sawtooth","triangle"];
-      const leadType = leadTypes[Math.floor(Math.random()*leadTypes.length)];
-      const padType = padTypes[Math.floor(Math.random()*padTypes.length)];
-      return { scale, baseMidi, beatsPerBar, bars, BPM, randAmt, timeSig: timeSigLabel, vol, leadType, padType };
-    }
+  function createResultCard({ticker,timeSig,mood,BPM,bars}){
+    const card=document.createElement("div"); card.className="card";
+    const title=document.createElement("h4"); title.textContent=ticker;
+    const row=document.createElement("div"); row.innerHTML=`<span class="badge">${mood}</span><span class="timeSig">${timeSig}</span>`;
+    const meta=document.createElement("div"); meta.className="meta"; meta.textContent=`BPM: ${BPM} / Bars: ${bars}`;
+    card.appendChild(title); card.appendChild(row); card.appendChild(meta); return card;
+  }
 
-    /* ===== サウンドチェーン（柔らかい音色） ===== */
-    function makeShortPlateImpulse(seconds) {
-      const len = Math.floor(audioCtx.sampleRate * seconds);
-      const buf = audioCtx.createBuffer(2, len, audioCtx.sampleRate);
-      for (let ch = 0; ch < 2; ch++) {
-        const data = buf.getChannelData(ch);
-        for (let i = 0; i < len; i++) {
-          const t = i / len;
-          data[i] = (Math.random() * 2 - 1) * (1 - t) * (1 - t);
-        }
-      }
-      return buf;
-    }
-    function createAudioChain(vol) {
-      const master = audioCtx.createGain(); master.gain.value = vol;
-      const lp = audioCtx.createBiquadFilter(); lp.type = "lowpass"; lp.frequency.value = 2400; lp.Q.value = 0.7;
-      const comp = audioCtx.createDynamicsCompressor();
-      comp.threshold.value = -20; comp.knee.value = 20; comp.ratio.value = 3; comp.attack.value = 0.005; comp.release.value = 0.2;
-      const convolver = audioCtx.createConvolver(); convolver.buffer = makeShortPlateImpulse(0.5);
-      const rvMix = audioCtx.createGain(); rvMix.gain.value = 0.18;
+  // ===== 音再生 =====
+  function play(params){
+    ensureAudio();
+    const ctx=audioCtx;
+    const master=ctx.createGain(); master.gain.value=params.vol||0.2; master.connect(ctx.destination);
+    const now=ctx.currentTime;
+    const osc=ctx.createOscillator(); osc.type="sine"; osc.frequency.setValueAtTime(220,now); osc.connect(master);
+    osc.start(now); osc.stop(now+10);
+  }
 
-      master.connect(lp); lp.connect(comp);
-      comp.connect(audioCtx.destination);
-      comp.connect(rvMix); rvMix.connect(convolver); convolver.connect(audioCtx.destination);
-      return { master };
-    }
+  // ===== カプセルトイボタン =====
+  const rollBtn=document.getElementById("rollBtn");
+  const resultsEl=document.getElementById("results");
 
-    /* ===== ノート／ハイハット ===== */
-    function scheduleTone(time, dur, freq, gainNode, type="triangle") {
-      const osc = audioCtx.createOscillator();
-      const g = audioCtx.createGain();
-      const a = 0.012, d = 0.08, s = 0.6, r = 0.10;
-      osc.type = type; osc.frequency.setValueAtTime(freq, time);
-      g.gain.setValueAtTime(0.0001, time);
-      g.gain.linearRampToValueAtTime(0.9, time + a);
-      g.gain.linearRampToValueAtTime(s, time + a + d);
-      g.gain.setValueAtTime(s, time + Math.max(0, dur - r));
-      g.gain.linearRampToValueAtTime(0.0001, time + dur);
-      osc.connect(g); g.connect(gainNode);
-      osc.start(time); osc.stop(time + dur + 0.01);
-    }
-    function scheduleHat(time, dur, gain=0.18) {
-      const bufLen = Math.floor(audioCtx.sampleRate * dur);
-      const buffer = audioCtx.createBuffer(1, bufLen, audioCtx.sampleRate);
-      const data = buffer.getChannelData(0);
-      for (let i = 0; i < bufLen; i++) data[i] = Math.random() * 2 - 1;
-      const src = audioCtx.createBufferSource(); src.buffer = buffer;
-      const bp = audioCtx.createBiquadFilter(); bp.type = "bandpass"; bp.frequency.value = 8000; bp.Q.value = 0.8;
-      const g = audioCtx.createGain(); g.gain.value = gain;
-      src.connect(bp); bp.connect(g); g.connect(audioCtx.destination);
-      src.start(time); src.stop(time + dur + 0.01);
-    }
-
-    /* ===== 作曲（コード進行＋メロディ＋リズム） ===== */
-    function compose(params) {
-      const spb = 60 / params.BPM;
-      const prog = buildProgression(params.scale === MAJOR);
-      const events = { pads: [], melody: [], drums: [] };
-
-      // Pads（各バーで三和音、音色ランダム）
-      for (let bar = 0; bar < params.bars; bar++) {
-        const root = params.baseMidi + prog[bar % prog.length];
-        const third = root + (params.scale === MAJOR ? 4 : 3);
-        const fifth = root + 7;
-        const start = bar * params.beatsPerBar * spb;
-        const dur = params.beatsPerBar * spb - 0.08;
-        [root, third, fifth].forEach(m => events.pads.push({ t: start, d: dur, f: midiToHz(m), osc: params.padType }));
-      }
-
-      // Melody（スケールにスナップ＋休符と跳躍を適度に混ぜる）
-      for (let bar = 0; bar < params.bars; bar++) {
-        for (let beat = 0; beat < params.beatsPerBar; beat++) {
-          const t = (bar * params.beatsPerBar + beat) * spb;
-          // 休符の挿入で密度変化
-          if (Math.random() < 0.15) continue;
-
-          const baseDeg = prog[bar % prog.length];
-          const smallMove = Math.random() < 0.6 ? 0 : 2;
-          const snapped = nearestScaleStep(params.scale, baseDeg + smallMove);
-          let midi = params.baseMidi + snapped;
-
-          // 跳躍音（低確率）
-          if (Math.random() < 0.12) midi += (Math.random() < 0.5 ? 5 : -5);
-
-          events.melody.push({ t, d: spb * 0.6, f: midiToHz(midi), osc: params.leadType });
-
-          // 2音目（シンコペーション）
-          if (Math.random() < (0.25 + params.randAmt * 0.3)) {
-            const upDown = Math.random() < 0.5 ? -2 : 2;
-            const midi2 = params.baseMidi + nearestScaleStep(params.scale, snapped + upDown);
-            const t2 = t + spb * (params.timeSig === "6/8" ? 0.5 : 0.62);
-            events.melody.push({ t: t2, d: spb * 0.35, f: midiToHz(midi2), osc: params.leadType });
-          }
-        }
-      }
-
-      // Drums（キック強拍・ハイハットは軽く）
-      const strongBeats = (() => {
-        switch (params.timeSig) {
-          case "4/4": return [0, 2];
-          case "3/4": return [0, 2];
-          case "6/8": return [0, 3];
-          case "5/4": return [0, 3];
-          default: return [0];
-        }
-      })();
-      for (let bar = 0; bar < params.bars; bar++) {
-        // Kick
-        strongBeats.forEach(sb => {
-          const t = (bar * params.beatsPerBar + sb) * spb;
-          events.drums.push({ type: "kick", t, d: 0.09 });
-        });
-        // Hats（8分刻み、6/8は3刻み）
-        const ticks = params.timeSig === "6/8" ? 3 : 2;
-        for (let beat = 0; beat < params.beatsPerBar; beat++) {
-          for (let k = 0; k < ticks; k++) {
-            const frac = k / ticks;
-            const t = (bar * params.beatsPerBar + beat) * spb + frac * spb;
-            events.drums.push({ type: "hat", t, d: 0.04 });
-          }
-        }
-      }
-      return events;
-    }
-
-    function play(params) {
-      ensureAudio();
-      const { master } = createAudioChain(params.vol);
-      const ev = compose(params);
-      const t0 = audioCtx.currentTime;
-
-      // Pads
-      ev.pads.forEach(e => scheduleTone(t0 + e.t, e.d, e.f, master, e.osc));
-      // Melody
-      ev.melody.forEach(e => scheduleTone(t0 + e.t, e.d, e.f, master, e.osc));
-      // Drums
-      ev.drums.forEach(d => {
-        if (d.type === "kick") {
-          const osc = audioCtx.createOscillator();
-          const g = audioCtx.createGain();
-          g.gain.value = 0.35;
-          osc.type = "sine";
-          const start = t0 + d.t;
-          osc.frequency.setValueAtTime(140, start);
-          osc.frequency.exponentialRampToValueAtTime(55, start + d.d);
-          osc.connect(g); g.connect(audioCtx.destination);
-          osc.start(start); osc.stop(start + d.d + 0.01);
-        } else {
-          scheduleHat(t0 + d.t, d.d, 0.22);
-        }
-      });
-    }
-
-    /* ===== UI：結果カード（不要項目削除） ===== */
-    const rollBtn = document.getElementById("rollBtn");
-    const resultsEl = document.getElementById("results");
-
-    function timeSignatureLottery() { return weightedPick(TIME_SIGNATURES).label; }
-    function rerollTicker() {
-      try { return pickRandom(TOPIX100); } catch { return pickRandom(TOPIX100); }
-    }
-    function describeMood(change, timeSig) {
-      const dir = change >= 0 ? "明るめ" : "落ち着き";
-      const sigFeel = { "4/4": "安定グルーヴ", "3/4": "ワルツ", "6/8": "軽快", "5/4": "ちょっとズレ"}[timeSig] || "グルーヴ";
-      return `${dir}・${sigFeel}`;
-    }
-    function createResultCard({ ticker, timeSig, mood, BPM, bars }) {
-      const card = document.createElement("div");
-      card.className = "card";
-      const title = document.createElement("h4"); title.textContent = ticker;
-      const row = document.createElement("div");
-      row.innerHTML = `<span class="badge">${mood}</span><span class="timeSig">${timeSig}</span>`;
-      const meta = document.createElement("div"); meta.className = "meta"; meta.textContent = `BPM: ${BPM} / Bars: ${bars}`;
-      card.appendChild(title); card.appendChild(row); card.appendChild(meta);
-      return card;
-    }
-
-    /* ===== クリックで生成・再生 ===== */
-    rollBtn.addEventListener("click", () => {
-      ensureAudio(); // 重要：ユーザー操作でAudioContextを再開
-
-      const ticker = rerollTicker();
-      const timeSig = timeSignatureLottery();
-      const stats = simulatePriceSeries();
-      const params = deriveParams(stats, timeSig);
-
-      play(params);
-
-      const mood = describeMood(stats.change, timeSig);
-      const card = createResultCard({ ticker, timeSig, mood, BPM: params.BPM, bars: params.bars });
-      const current = Array.from(resultsEl.children);
-      if (current.length >= 2) resultsEl.removeChild(current[0]);
-      resultsEl.appendChild(card);
-    });
-
-    /* ===== パラメータ導出（差し替えしやすいよう分離） ===== */
-    function deriveParams(stats, timeSig) {
-      // 仕様通りの安定版に多様性を加えた deriveParams（compose/playで利用）
-      const up = stats.change >= 0;
-      const scale = up ? MAJOR : NAT_MINOR;
-      const baseMidi = 60 + (up ? 0 : -2);
-      const beatsPerBar = timeSig === "6/8" ? 6 : parseInt(timeSig.split("/")[0], 10);
-      const bars = 4;
-      let BPM = Math.round((bars * beatsPerBar * 60) / 10);
-      BPM = Math.max(80, Math.min(140, BPM + Math.round(stats.volatility) * (up ? 1 : -1)));
-      const vol = Math.min(0.9, Math.max(0.18, stats.range / 24));
-      let randAmt = Math.min(0.5, stats.volatility / 10);
-      if (timeSig === "5/4" && stats.volatility > 6) randAmt = Math.min(0.65, randAmt + 0.1);
-      const leadTypes = ["triangle","square","sine"];
-      const padTypes = ["sawtooth","triangle"];
-      const leadType = leadTypes[Math.floor(Math.random()*leadTypes.length)];
-      const padType = padTypes[Math.floor(Math.random()*padTypes.length)];
-      return { scale, baseMidi, beatsPerBar, bars, BPM, randAmt, timeSig, vol, leadType, padType };
-    }
-  </script>
+  rollBtn.addEventListener("click",()=>{
+    ensureAudio();
+    const ticker=pickRandom(TOPIX100);
+    const timeSig=weightedPick(TIME_SIGNATURES).label;
+    const stats=simulatePriceSeries();
+    const params={BPM:Math.round((stats.volatility+1)*100), bars:4, vol:0.2};
+    play(params);
+    const mood=describeMood(stats.change,timeSig);
+    const card=createResultCard({ticker,timeSig,mood,BPM:params.BPM,bars:params.bars});
+    const current=Array.from(resultsEl.children); if(current.length>=2) resultsEl.removeChild(current[0]);
+    resultsEl.appendChild(card);
+  });
+</script>
 </body>
 </html>
