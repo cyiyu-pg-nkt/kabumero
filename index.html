@@ -7,13 +7,13 @@
   <style>
     /* ===== 80年代レトロかわいいデザイン ===== */
     :root {
-      --bg: #21213a;
-      --panel: #2c2c4f;
-      --accent-pink: #ff72b6;
-      --accent-cyan: #6df0ff;
-      --accent-yellow: #ffe66d;
-      --accent-green: #96ff7c;
-      --white: #fff7fb;
+      --bg: #21213a;           /* deep indigo */
+      --panel: #2c2c4f;        /* indigo panel */
+      --accent-pink: #ff72b6;  /* neon pink */
+      --accent-cyan: #6df0ff;  /* neon cyan */
+      --accent-yellow: #ffe66d;/* pastel yellow */
+      --accent-green: #96ff7c; /* mint green */
+      --white: #fff7fb;        /* warm white */
       --shadow: rgba(0,0,0,0.35);
 
       --btn-grad: linear-gradient(135deg, #ff72b6 0%, #ffe66d 100%);
@@ -184,8 +184,8 @@
   <div class="container">
     <header>
       <div class="title">株メロ♪</div>
-      <div class="catch"></div>
-      <div class="sub"></div>
+      <div class="catch">株価の値動きで意外な音楽ができちゃう！</div>
+      <div class="sub">カプセルトイを回すだけで、値動きデータに基づいた短い曲が自動生成されます。どんな曲が出るか、楽しんで体験しよう！</div>
     </header>
 
     <div class="stage">
@@ -203,7 +203,7 @@
       <!-- 情報パネル -->
       <aside class="info">
         <h3>基本コンセプト</h3>
-        <p>株価の値動きで意外な音楽ができちゃう！</p>
+        <p>ユーザーは銘柄を入力せず、カプセルトイを回すだけで完全ランダム抽選。曲は株価起源のイメージに基づいて生成され、短くて意外性のある体験を提供します。</p>
         <h3>曲生成のルール</h3>
         <p>上昇／下降は音階、値幅は音量、ボラティリティはリズムやランダム性に反映。拍子はランダム抽選し、曲全体は一つの拍子で統一します（4/4・3/4・6/8・5/4）。</p>
         <p class="muted">禁止事項：架空企業・仮想銘柄の使用禁止／投資助言・株価情報は表示しません。</p>
@@ -217,24 +217,15 @@
   </div>
 
   <script>
-    /* ===== ブラウザのオーディオ制限対策（PC・モバイル両対応） ===== */
+    /* ===== ブラウザのオーディオ制限対策 ===== */
     const AudioCtx = window.AudioContext || window.webkitAudioContext;
     let audioCtx = null;
-
     function ensureAudio() {
       if (!audioCtx) audioCtx = new AudioCtx();
       if (audioCtx.state === "suspended") audioCtx.resume();
     }
 
-    // モバイル用：最初のタッチで AudioContext 起動
-    function initAudioOnFirstTouch() {
-      if (!audioCtx) audioCtx = new AudioCtx();
-      if (audioCtx.state === "suspended") audioCtx.resume();
-      document.body.removeEventListener("touchstart", initAudioOnFirstTouch);
-    }
-    document.body.addEventListener("touchstart", initAudioOnFirstTouch, { once: true });
-
-    /* ===== TOPIX100リスト ===== */
+    /* ===== TOPIX100リスト（仕様どおりフル復帰） ===== */
     const TOPIX100 = [
       "1925大和ハウス工業","1928積水ハウス","2413エムスリー","2502アサヒグループホールディングス","2503キリンホールディングス",
       "2802味の素","2914日本たばこ産業","3382セブン＆アイ・ホールディングス","3402東レ","3407旭化成","4063信越化学工業",
@@ -255,13 +246,13 @@
       "9434ソフトバンク","9735セコム","9843ニトリホールディングス","9983ファーストリテイリング","9984ソフトバンクグループ"
     ];
 
+    /* ===== 拍子抽選（仕様の確率） ===== */
     const TIME_SIGNATURES = [
       { label: "4/4", weight: 0.30 },
       { label: "3/4", weight: 0.30 },
       { label: "6/8", weight: 0.25 },
       { label: "5/4", weight: 0.15 }
     ];
-
     function weightedPick(items) {
       const r = Math.random(); let acc = 0;
       for (const it of items) { acc += it.weight; if (r <= acc) return it; }
@@ -269,9 +260,9 @@
     }
     function pickRandom(arr) { return arr[Math.floor(Math.random() * arr.length)]; }
 
-    /* ===== 価格データの疑似生成 ===== */
+    /* ===== 価格データの疑似生成（直近6時間相当） ===== */
     function simulatePriceSeries() {
-      const len = 360;
+      const len = 360; // 6h = 360min
       let price = 100 + Math.random() * 20;
       const series = [];
       for (let i = 0; i < len; i++) {
@@ -288,63 +279,236 @@
       return { change: end - start, range: max - min, volatility: stdDev };
     }
 
-    /* ===== 音楽生成ロジック ===== */
+    /* ===== 音楽生成：多様性を強化した安定版ロジック ===== */
     const MAJOR = [0,2,4,5,7,9,11];
     const NAT_MINOR = [0,2,3,5,7,8,10];
 
     function buildProgression(isMajor) {
+      // 複数の進行からランダム選択（似た曲調の抑制）
       const progressions = isMajor
-        ? [[0, 7, 9, 5],[0, 5, 7, 0],[2, 7, 0, 0]]
-        : [[0, 7, 8, 5],[0, 5, 7, 3],[2, 7, 0, 3]];
-      return pickRandom(progressions);
+        ? [
+            [0, 7, 9, 5],   // I–V–vi–IV
+            [0, 5, 7, 0],   // I–IV–V–I
+            [2, 7, 0, 0]    // ii–V–I–I
+          ]
+        : [
+            [0, 7, 8, 5],   // i–V–♭VI–IV
+            [0, 3, 7, 0],   // i–iv–V–i
+            [0, 10, 5, 7]   // i–♭VII–IV–V
+          ];
+      return progressions[Math.floor(Math.random() * progressions.length)];
     }
 
-    function deriveParams(stats, timeSig) {
-      const BPM = 60 + Math.round(stats.volatility*30);
-      const bars = 4 + Math.floor(stats.range/10);
-      return { scale: stats.change >=0 ? MAJOR : NAT_MINOR, progression: buildProgression(stats.change>=0), BPM, bars, timeSig };
+    function midiToHz(midi) { return 440 * Math.pow(2, (midi - 69) / 12); }
+    function nearestScaleStep(scale, semitone) {
+      const octave = Math.floor(semitone / 12);
+      const inOct = semitone - octave * 12;
+      let nearest = scale[0], diff = Infinity;
+      for (const s of scale) { const d = Math.abs(s - inOct); if (d < diff) { diff = d; nearest = s; } }
+      return octave * 12 + nearest;
     }
 
-    function describeMood(change, timeSig) {
-      if(change>0) return "上昇系ハッピー"; if(change<0) return "下降系ブルー"; return "レンジ安定系";
+    function deriveParams(stats, timeSigLabel) {
+      const up = stats.change >= 0;
+      const scale = up ? MAJOR : NAT_MINOR;
+      const baseMidi = 60 + (up ? 0 : -2); // C4中心（下落時やや低め）
+      const beatsPerBar = timeSigLabel === "6/8" ? 6 : parseInt(timeSigLabel.split("/")[0], 10);
+      const bars = 4;
+      // 約10秒をベースに、ボラティリティで幅を持たせる
+      let BPM = Math.round((bars * beatsPerBar * 60) / 10);
+      BPM = Math.max(80, Math.min(140, BPM + Math.round(stats.volatility) * (up ? 1 : -1)));
+      // 音量とランダム度（控えめ）
+      const vol = Math.min(0.9, Math.max(0.18, stats.range / 24));
+      let randAmt = Math.min(0.5, stats.volatility / 10);
+      if (timeSigLabel === "5/4" && stats.volatility > 6) randAmt = Math.min(0.65, randAmt + 0.1);
+      // 音色のバリエーション
+      const leadTypes = ["triangle","square","sine"];
+      const padTypes = ["sawtooth","triangle"];
+      const leadType = leadTypes[Math.floor(Math.random()*leadTypes.length)];
+      const padType = padTypes[Math.floor(Math.random()*padTypes.length)];
+      return { scale, baseMidi, beatsPerBar, bars, BPM, randAmt, timeSig: timeSigLabel, vol, leadType, padType };
     }
 
-    function createResultCard({ticker, timeSig, mood, BPM, bars}) {
-      const card = document.createElement("div"); card.className="card";
-      card.innerHTML = `<h4>${ticker}</h4>
-        <div class="meta"><span class="timeSig">${timeSig.label}</span> <span class="badge">BPM:${BPM}</span> <span class="badge">Bars:${bars}</span></div>
-        <p style="margin-top:6px;">ムード: ${mood}</p>`;
-      return card;
-    }
-
-    function timeSignatureLottery() { return weightedPick(TIME_SIGNATURES); }
-    function rerollTicker() { return pickRandom(TOPIX100); }
-
-    function play({scale, progression, BPM, bars}) {
-      const secPerBeat = 60/BPM;
-      const ctx = audioCtx; if(!ctx) return;
-      const now = ctx.currentTime;
-      const osc = ctx.createOscillator();
-      const gain = ctx.createGain();
-      osc.type = "sine"; osc.connect(gain); gain.connect(ctx.destination);
-      gain.gain.setValueAtTime(0.15, now);
-      let t = now;
-      for(let bar=0; bar<bars; bar++){
-        for(let beat=0; beat<4; beat++){
-          const note = scale[Math.floor(Math.random()*scale.length)];
-          osc.frequency.setValueAtTime(220*Math.pow(2,note/12), t);
-          t += secPerBeat;
+    /* ===== サウンドチェーン（柔らかい音色） ===== */
+    function makeShortPlateImpulse(seconds) {
+      const len = Math.floor(audioCtx.sampleRate * seconds);
+      const buf = audioCtx.createBuffer(2, len, audioCtx.sampleRate);
+      for (let ch = 0; ch < 2; ch++) {
+        const data = buf.getChannelData(ch);
+        for (let i = 0; i < len; i++) {
+          const t = i / len;
+          data[i] = (Math.random() * 2 - 1) * (1 - t) * (1 - t);
         }
       }
-      osc.start(now); osc.stop(t);
+      return buf;
+    }
+    function createAudioChain(vol) {
+      const master = audioCtx.createGain(); master.gain.value = vol;
+      const lp = audioCtx.createBiquadFilter(); lp.type = "lowpass"; lp.frequency.value = 2400; lp.Q.value = 0.7;
+      const comp = audioCtx.createDynamicsCompressor();
+      comp.threshold.value = -20; comp.knee.value = 20; comp.ratio.value = 3; comp.attack.value = 0.005; comp.release.value = 0.2;
+      const convolver = audioCtx.createConvolver(); convolver.buffer = makeShortPlateImpulse(0.5);
+      const rvMix = audioCtx.createGain(); rvMix.gain.value = 0.18;
+
+      master.connect(lp); lp.connect(comp);
+      comp.connect(audioCtx.destination);
+      comp.connect(rvMix); rvMix.connect(convolver); convolver.connect(audioCtx.destination);
+      return { master };
     }
 
-    /* ===== カプセルトイ操作 ===== */
+    /* ===== ノート／ハイハット ===== */
+    function scheduleTone(time, dur, freq, gainNode, type="triangle") {
+      const osc = audioCtx.createOscillator();
+      const g = audioCtx.createGain();
+      const a = 0.012, d = 0.08, s = 0.6, r = 0.10;
+      osc.type = type; osc.frequency.setValueAtTime(freq, time);
+      g.gain.setValueAtTime(0.0001, time);
+      g.gain.linearRampToValueAtTime(0.9, time + a);
+      g.gain.linearRampToValueAtTime(s, time + a + d);
+      g.gain.setValueAtTime(s, time + Math.max(0, dur - r));
+      g.gain.linearRampToValueAtTime(0.0001, time + dur);
+      osc.connect(g); g.connect(gainNode);
+      osc.start(time); osc.stop(time + dur + 0.01);
+    }
+    function scheduleHat(time, dur, gain=0.18) {
+      const bufLen = Math.floor(audioCtx.sampleRate * dur);
+      const buffer = audioCtx.createBuffer(1, bufLen, audioCtx.sampleRate);
+      const data = buffer.getChannelData(0);
+      for (let i = 0; i < bufLen; i++) data[i] = Math.random() * 2 - 1;
+      const src = audioCtx.createBufferSource(); src.buffer = buffer;
+      const bp = audioCtx.createBiquadFilter(); bp.type = "bandpass"; bp.frequency.value = 8000; bp.Q.value = 0.8;
+      const g = audioCtx.createGain(); g.gain.value = gain;
+      src.connect(bp); bp.connect(g); g.connect(audioCtx.destination);
+      src.start(time); src.stop(time + dur + 0.01);
+    }
+
+    /* ===== 作曲（コード進行＋メロディ＋リズム） ===== */
+    function compose(params) {
+      const spb = 60 / params.BPM;
+      const prog = buildProgression(params.scale === MAJOR);
+      const events = { pads: [], melody: [], drums: [] };
+
+      // Pads（各バーで三和音、音色ランダム）
+      for (let bar = 0; bar < params.bars; bar++) {
+        const root = params.baseMidi + prog[bar % prog.length];
+        const third = root + (params.scale === MAJOR ? 4 : 3);
+        const fifth = root + 7;
+        const start = bar * params.beatsPerBar * spb;
+        const dur = params.beatsPerBar * spb - 0.08;
+        [root, third, fifth].forEach(m => events.pads.push({ t: start, d: dur, f: midiToHz(m), osc: params.padType }));
+      }
+
+      // Melody（スケールにスナップ＋休符と跳躍を適度に混ぜる）
+      for (let bar = 0; bar < params.bars; bar++) {
+        for (let beat = 0; beat < params.beatsPerBar; beat++) {
+          const t = (bar * params.beatsPerBar + beat) * spb;
+          // 休符の挿入で密度変化
+          if (Math.random() < 0.15) continue;
+
+          const baseDeg = prog[bar % prog.length];
+          const smallMove = Math.random() < 0.6 ? 0 : 2;
+          const snapped = nearestScaleStep(params.scale, baseDeg + smallMove);
+          let midi = params.baseMidi + snapped;
+
+          // 跳躍音（低確率）
+          if (Math.random() < 0.12) midi += (Math.random() < 0.5 ? 5 : -5);
+
+          events.melody.push({ t, d: spb * 0.6, f: midiToHz(midi), osc: params.leadType });
+
+          // 2音目（シンコペーション）
+          if (Math.random() < (0.25 + params.randAmt * 0.3)) {
+            const upDown = Math.random() < 0.5 ? -2 : 2;
+            const midi2 = params.baseMidi + nearestScaleStep(params.scale, snapped + upDown);
+            const t2 = t + spb * (params.timeSig === "6/8" ? 0.5 : 0.62);
+            events.melody.push({ t: t2, d: spb * 0.35, f: midiToHz(midi2), osc: params.leadType });
+          }
+        }
+      }
+
+      // Drums（キック強拍・ハイハットは軽く）
+      const strongBeats = (() => {
+        switch (params.timeSig) {
+          case "4/4": return [0, 2];
+          case "3/4": return [0, 2];
+          case "6/8": return [0, 3];
+          case "5/4": return [0, 3];
+          default: return [0];
+        }
+      })();
+      for (let bar = 0; bar < params.bars; bar++) {
+        // Kick
+        strongBeats.forEach(sb => {
+          const t = (bar * params.beatsPerBar + sb) * spb;
+          events.drums.push({ type: "kick", t, d: 0.09 });
+        });
+        // Hats（8分刻み、6/8は3刻み）
+        const ticks = params.timeSig === "6/8" ? 3 : 2;
+        for (let beat = 0; beat < params.beatsPerBar; beat++) {
+          for (let k = 0; k < ticks; k++) {
+            const frac = k / ticks;
+            const t = (bar * params.beatsPerBar + beat) * spb + frac * spb;
+            events.drums.push({ type: "hat", t, d: 0.04 });
+          }
+        }
+      }
+      return events;
+    }
+
+    function play(params) {
+      ensureAudio();
+      const { master } = createAudioChain(params.vol);
+      const ev = compose(params);
+      const t0 = audioCtx.currentTime;
+
+      // Pads
+      ev.pads.forEach(e => scheduleTone(t0 + e.t, e.d, e.f, master, e.osc));
+      // Melody
+      ev.melody.forEach(e => scheduleTone(t0 + e.t, e.d, e.f, master, e.osc));
+      // Drums
+      ev.drums.forEach(d => {
+        if (d.type === "kick") {
+          const osc = audioCtx.createOscillator();
+          const g = audioCtx.createGain();
+          g.gain.value = 0.35;
+          osc.type = "sine";
+          const start = t0 + d.t;
+          osc.frequency.setValueAtTime(140, start);
+          osc.frequency.exponentialRampToValueAtTime(55, start + d.d);
+          osc.connect(g); g.connect(audioCtx.destination);
+          osc.start(start); osc.stop(start + d.d + 0.01);
+        } else {
+          scheduleHat(t0 + d.t, d.d, 0.22);
+        }
+      });
+    }
+
+    /* ===== UI：結果カード（不要項目削除） ===== */
     const rollBtn = document.getElementById("rollBtn");
     const resultsEl = document.getElementById("results");
 
+    function timeSignatureLottery() { return weightedPick(TIME_SIGNATURES).label; }
+    function rerollTicker() {
+      try { return pickRandom(TOPIX100); } catch { return pickRandom(TOPIX100); }
+    }
+    function describeMood(change, timeSig) {
+      const dir = change >= 0 ? "明るめ" : "落ち着き";
+      const sigFeel = { "4/4": "安定グルーヴ", "3/4": "ワルツ", "6/8": "軽快", "5/4": "ちょっとズレ"}[timeSig] || "グルーヴ";
+      return `${dir}・${sigFeel}`;
+    }
+    function createResultCard({ ticker, timeSig, mood, BPM, bars }) {
+      const card = document.createElement("div");
+      card.className = "card";
+      const title = document.createElement("h4"); title.textContent = ticker;
+      const row = document.createElement("div");
+      row.innerHTML = `<span class="badge">${mood}</span><span class="timeSig">${timeSig}</span>`;
+      const meta = document.createElement("div"); meta.className = "meta"; meta.textContent = `BPM: ${BPM} / Bars: ${bars}`;
+      card.appendChild(title); card.appendChild(row); card.appendChild(meta);
+      return card;
+    }
+
+    /* ===== クリックで生成・再生 ===== */
     rollBtn.addEventListener("click", () => {
-      ensureAudio(); // ユーザー操作で必ず再生可能
+      ensureAudio(); // 重要：ユーザー操作でAudioContextを再開
 
       const ticker = rerollTicker();
       const timeSig = timeSignatureLottery();
@@ -356,9 +520,29 @@
       const mood = describeMood(stats.change, timeSig);
       const card = createResultCard({ ticker, timeSig, mood, BPM: params.BPM, bars: params.bars });
       const current = Array.from(resultsEl.children);
-      if(current.length >= 2) resultsEl.removeChild(current[0]);
+      if (current.length >= 2) resultsEl.removeChild(current[0]);
       resultsEl.appendChild(card);
     });
+
+    /* ===== パラメータ導出（差し替えしやすいよう分離） ===== */
+    function deriveParams(stats, timeSig) {
+      // 仕様通りの安定版に多様性を加えた deriveParams（compose/playで利用）
+      const up = stats.change >= 0;
+      const scale = up ? MAJOR : NAT_MINOR;
+      const baseMidi = 60 + (up ? 0 : -2);
+      const beatsPerBar = timeSig === "6/8" ? 6 : parseInt(timeSig.split("/")[0], 10);
+      const bars = 4;
+      let BPM = Math.round((bars * beatsPerBar * 60) / 10);
+      BPM = Math.max(80, Math.min(140, BPM + Math.round(stats.volatility) * (up ? 1 : -1)));
+      const vol = Math.min(0.9, Math.max(0.18, stats.range / 24));
+      let randAmt = Math.min(0.5, stats.volatility / 10);
+      if (timeSig === "5/4" && stats.volatility > 6) randAmt = Math.min(0.65, randAmt + 0.1);
+      const leadTypes = ["triangle","square","sine"];
+      const padTypes = ["sawtooth","triangle"];
+      const leadType = leadTypes[Math.floor(Math.random()*leadTypes.length)];
+      const padType = padTypes[Math.floor(Math.random()*padTypes.length)];
+      return { scale, baseMidi, beatsPerBar, bars, BPM, randAmt, timeSig, vol, leadType, padType };
+    }
   </script>
 </body>
 </html>
